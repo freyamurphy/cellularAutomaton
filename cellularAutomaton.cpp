@@ -10,6 +10,7 @@ int height = 8; // Number of rows in picture
 // [8] should be replaced with [width] but need to figure out how to make this work.
 bool parent[8] = {0,0,0,1,0,0,0,0};
 bool child[8];
+/* rule should always have size 8 since 2^3=8 (3 bits with 2 options each)*/
 bool rule[8] = {0,0,0,1,1,1,1,0}; // Rule 30 (minimum requirement)
 
 // Characters to output in picture
@@ -48,13 +49,8 @@ void calculateChild() {
 		}
 
 		// Setting value of child row
-		/* This is a bad implementation.
-		   It would be more readable to use a switch statement but switch statements can only take 1 argument (not 3 as is needed here).
-                   The 3 variables could be combined into 1 string, e.g. 110. 
-		   However this requires lots of changing data types which I couldn't figure out.
-		   Strings also have the benefit that they could be auto-generated (by counting in binary)
-		   to give the correct number of cases for the value of width.
-		  (Here I hard coded 8 cases which is no use if the user enters width).
+		/* It might be more readable to use a switch statement but that requires combining 
+		   the bool values into a string which is hard :(
 		*/
 		if (prevVal && currentVal && nextVal) {
 			child[i] = rule[0];
