@@ -6,7 +6,7 @@
 using namespace std;
 
 // Global variables
-int width = 100; // Number of elements in array (current implementation only works for width=8)
+int width = 100; // Number of elements in array
 int height = 35; // Number of rows in picture
 
 // [100] should be replaced with [width] but need to figure out how to make this work.
