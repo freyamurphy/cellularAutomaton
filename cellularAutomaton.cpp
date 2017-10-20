@@ -1,15 +1,18 @@
 #include <iostream>
 #include <string>
+#include <cstdlib>
+#include <cmath>
 
 using namespace std;
 
 // Global variables
-int width = 8; // Number of elements in array (current implementation only works for width=8)
-int height = 8; // Number of rows in picture
+int width = 100; // Number of elements in array (current implementation only works for width=8)
+int height = 35; // Number of rows in picture
 
-// [8] should be replaced with [width] but need to figure out how to make this work.
-bool parent[8] = {0,0,0,1,0,0,0,0};
-bool child[8];
+// [100] should be replaced with [width] but need to figure out how to make this work.
+bool* parent = new bool[width];
+bool* child = new bool[width];
+
 /* rule should always have size 8 since 2^3=8 (3 bits with 2 options each)*/
 bool rule[8] = {0,0,0,1,1,1,1,0}; // Rule 30 (minimum requirement)
 
@@ -126,15 +129,73 @@ void outputPicture() {
 	}
 }
 
-void getWidth() {
+int getWidth() {return 0;}
 
+int getHeight() {return 0;}
+
+int getRuleFromUser() {return 0;}
+
+bool* convertDecimalToBinary(int decNum) {
+	static bool binNum[8];
+	int remainder;
+	
+	for (int i = 1; i < 9; i++) {
+		remainder = decNum % 2;
+		decNum /= 2;
+		
+		binNum[8 - i] = remainder;
+	}
+	for (int i = 0; i < 8; i++) {
+		cout << binNum[i];
+	}
+	cout << endl;
+	
+	return binNum;
 }
 
-void getHeight() {
+int convertBinaryToDecimal(int binNum) {return 0;}
 
+bool* getRandomRule() {
+	// This line is needed to make the numbers appear more random
+	srand(time(NULL));
+	// Choose random number from 0 to 256
+	int decRule = rand() % 256;
+	cout << "Rule " << decRule << endl;
+	
+	// Convert this rule to binary
+	bool* binRule = convertDecimalToBinary(decRule);
+	
+	
+	/* Copy the value into the rule array
+	for (int i = 0; i < 8; i++) {
+		rule[i] = binRule[i];
+	}*/
+
+
+	return binRule;
 }
+
+void setRule(bool* binRule) {
+	for (int i = 0; i < 8; i++) {
+		rule[i] = binRule[i];
+	}
+}
+
+void initParent() {
+	for (int i = 0; i < width; i++) {
+		parent[i] = 0;
+	}
+	parent[width/2] = 1;
+}
+
+void saveToFile() {}
+
+void displayMenu() {}
 
 int main() {
+	initParent();
+	bool* binRule = getRandomRule();
+	setRule(binRule);
 	outputPicture();
   return 0;
 }
