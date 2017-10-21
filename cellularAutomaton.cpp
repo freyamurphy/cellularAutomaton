@@ -164,28 +164,34 @@ bool* getRandomRule() {
 	
 	// Convert this rule to binary
 	bool* binRule = convertDecimalToBinary(decRule);
-	
-	
-	/* Copy the value into the rule array
-	for (int i = 0; i < 8; i++) {
-		rule[i] = binRule[i];
-	}*/
-
 
 	return binRule;
 }
 
+// Copy value of binRule into rule
 void setRule(bool* binRule) {
 	for (int i = 0; i < 8; i++) {
 		rule[i] = binRule[i];
 	}
 }
 
+// Set value of first row
 void initParent() {
-	for (int i = 0; i < width; i++) {
+	/*for (int i = 0; i < width; i++) {
 		parent[i] = 0;
 	}
-	parent[width/2] = 1;
+	parent[width/2] = 1;*/
+	bool bit;
+	// Initialise random seed
+	srand(time(NULL));
+	
+	for (int i = 0; i < width; i++) {
+		// randomly choose 1 or 0
+		bit = rand() % 2;
+		parent[i] = bit;
+		
+	}
+	
 }
 
 void saveToFile() {}
