@@ -6,8 +6,8 @@
 using namespace std;
 
 // Global variables
-int width = 100; // Number of elements in array
-int height = 35; // Number of rows in picture
+int width; // Number of elements in array
+int height; // Number of rows in picture
 
 bool* parent = new bool[width];
 bool* child = new bool[width];
@@ -17,7 +17,54 @@ bool rule[8] = {0,0,0,1,1,1,1,0}; // Rule 30 (minimum requirement)
 
 // Characters to output in picture
 char char1 = '1';
-char char2 = ' ';
+char char2 = '0';
+
+/* Gets the user to input the width of each line */
+int getWidthOfLine()
+{
+	int w;
+	cout<<"Please enter the width you would like the line to be: "<<endl;
+	cin>>w;
+	width = w;
+	return w;
+}
+/* Gets the user to input the amount of rows */
+int getAmountOfRows()
+{
+	int rows;
+	cout<<"Please enter the amount of rows you would like: "<<endl;
+	cin>>rows;
+	height = rows;
+	return rows;
+}
+
+// Set value of first row
+void initParent() 
+{
+	bool bit;
+	// Initialise random seed
+	srand(time(NULL));
+	
+	for (int i = 0; i < width; i++)
+	{
+		// randomly choose 1 or 0
+		bit = rand() % 2;
+		parent[i] = bit;	
+	}
+}
+/* Outputs the parent array */
+void outputParent() {
+	char outChar;
+	for (int i = 0; i < width; i++) {
+		if (parent[i]) {
+			outChar = char1;
+		}
+		else {
+			outChar = char2;
+		}
+		cout << outChar;
+	}
+}
 
 // Calculate the contents of the child array based on the parent array
 void calculateChild() {
@@ -95,19 +142,6 @@ void outputChild() {
 	cout << endl;
 }
 
-void outputParent() {
-	char outChar;
-	for (int i = 0; i < width; i++) {
-		if (parent[i]) {
-			outChar = char1;
-		}
-		else {
-			outChar = char2;
-		}
-		cout << outChar;
-	}
-	cout << endl;
-}
 
 void copyChildToParent() {
 	for (int i = 0; i < width; i++) {
@@ -121,16 +155,12 @@ void outputPicture() {
 	outputParent();
 	// Generate and print out child rows
 	for (int i = 0; i < height; i++) {
-		calculateChild();
 		outputChild();
 		// This child becomes the parent of the next row.
 		copyChildToParent();
 	}
 }
 
-int getWidth() {return 0;}
-
-int getHeight() {return 0;}
 
 int getRuleFromUser() {return 0;}
 
@@ -152,23 +182,7 @@ bool* convertDecimalToBinary(int decNum) {
 	return binNum;
 }
 
-// Convert an 8 bit binary number to a decimal value
-int convertBinaryToDecimal(bool binNum[8]) {
-	int decNum = 0;
-	int binDigit;
-	int powerOfTwo = 1;
-	
-	for (int i = 7; i >= 0; i--) {
-		binDigit = binNum[i];
-		
-		decNum += binDigit*powerOfTwo;
-		
-		// The power of 2 increases with each column
-		powerOfTwo *= 2;
-	}
-
-	return decNum;
-}
+int convertBinaryToDecimal(int binNum) {return 0;}
 
 bool* getRandomRule() {
 	// This line is needed to make the numbers appear more random
@@ -190,33 +204,20 @@ void setRule(bool* binRule) {
 	}
 }
 
-// Set value of first row
-void initParent() {
-	/*for (int i = 0; i < width; i++) {
-		parent[i] = 0;
-	}
-	parent[width/2] = 1;*/
-	bool bit;
-	// Initialise random seed
-	srand(time(NULL));
-	
-	for (int i = 0; i < width; i++) {
-		// randomly choose 1 or 0
-		bit = rand() % 2;
-		parent[i] = bit;
-		
-	}
-	
-}
+
 
 void saveToFile() {}
 
-void displayMenu() {}
+void displayMenu(){}
 
 int main() {
+	cout << width << endl;
+	getWidthOfLine();
+	cout << width << endl;
+	getAmountOfRows();
 	initParent();
-	bool* binRule = getRandomRule();
-	setRule(binRule);
+	//bool* binRule = getRandomRule();
+	//setRule(binRule);
 	outputPicture();
   return 0;
 }
