@@ -182,7 +182,23 @@ bool* convertDecimalToBinary(int decNum) {
 	return binNum;
 }
 
-int convertBinaryToDecimal(int binNum) {return 0;}
+// Convert an 8 bit binary number to a decimal value
+int convertBinaryToDecimal(bool binNum[8]) {
+	int decNum = 0;
+	int binDigit;
+	int powerOfTwo = 1;
+	
+	for (int i = 7; i >= 0; i--) {
+		binDigit = binNum[i];
+		
+		decNum += binDigit*powerOfTwo;
+		
+		// The power of 2 increases with each column
+		powerOfTwo *= 2;
+	}
+
+	return decNum;
+}
 
 bool* getRandomRule() {
 	// This line is needed to make the numbers appear more random
