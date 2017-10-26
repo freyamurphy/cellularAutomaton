@@ -22,8 +22,8 @@ vector<bool> child;
 vector<bool> rule(8);
 
 // Characters to output in picture
-const char* char1 = "\u25A0";
-const char* char2 = " ";
+char char1 = '1';
+char char2 = ' ';
 
 // Get an integer from the user and return it
 int getWidth() {
@@ -67,36 +67,64 @@ int getHeight()
 	return height;
 }
 
+vector<bool> userGeneratedRow()
+{
+	//make width size of string no width variable 
+	int userInput;
+	vector<bool> userGeneratedRow;
+	int width = getWidth();
+	for(int i =0;i<width;i++)
+	{
+		cout<<"Please enter a 1 or a 0 and press 'Enter'"<<endl;
+		cin>>userInput;
+		userGeneratedRow.push_back(userInput);
+	}
+	return userGeneratedRow;
+		
+}
+
+vector<bool> randomParentGeneration()
+{
+	// The next bit to add to the row
+	bool bit;
+	vector<bool> randomGeneration;
+	int width = getWidth();
+	// Initialise random seed
+	srand(time(NULL));
+		
+	for (int i = 0; i < width; i++)
+	{
+		// randomly choose 1 or 0
+		bit = rand() % 2;
+		// Add bit to row
+		randomGeneration.push_back(bit);
+	} 
+	return randomGeneration;
+}
+
 /* Set values of first row in picture
    mode="RANDOM" gives a randomly generated row
    mode="USER_INPUT" allows the user to enter the row
 */
-void initParent(string mode) {
-	// The next bit to add to the row
-	bool bit;
+void initParent()
+{
+	
 	// Reset the row
 	parent.clear();
-	
-	if (mode == "RANDOM") {
-		// Initialise random seed
-		srand(time(NULL));
-		
-		int width = getWidth();
-	
-		for (int i = 0; i < width; i++) {
-			// randomly choose 1 or 0
-			bit = rand() % 2;
-			// Add bit to row
-			parent.push_back(bit);
-		}
+
+	//Small menu for choosing how the parent is generated.
+	int userInput;
+	cout<<"Please choose from the following: "<<endl;
+	cout<<"1. Use a randomly generated first row."<<endl;
+	cout<<"2. Enter a first row."<<endl;
+	cin>>userInput;
+	switch(userInput)
+	{
+		case 1:	parent = randomParentGeneration();
+			break;
+		case 2: parent = userGeneratedRow();
+			break;
 	}
-	else if (mode == "USER_INPUT") {
-		/* Get the user to enter the row bit by bit */
-	}
-	else {
-		cout << "Invalid mode." << endl;
-	}
-	
 }
 
 // Converts a decimal number to an 8 bit binary number
@@ -152,6 +180,34 @@ vector<bool> getRandomRule() {
 	return binRule;
 }
 
+/* Gets user to input their own rule in binary */
+vector<bool> getUserRule()
+{
+	vector<bool> binRule;
+	int usrInput;
+	for(int i =0;i<8;i++)
+	{
+		cout<<"Please enter a 1 or a 0 and press 'Enter'"<<endl;
+		cin>>usrInput;
+		binRule.push_back(usrInput);
+	}
+	int decNum = convertBinaryToDecimal(binRule);
+	cout<<"Rule" << decNum<<endl;
+	return binRule;
+}
+
+/* Gets the user to input their own rule in decimals */
+vector<bool> getUserDecRule()
+{
+	int userInput;
+	vector<bool> decRule;
+	cout<<"Please enter a decimal: "<<endl;
+	cin>>userInput;
+	cout<< "You have entered Rule "<< userInput<<endl;
+	decRule = convertDecimalToBinary(userInput);
+	return decRule;
+}
+
 /* Set value of rule vector
    mode="RANDOM" chooses a random rule
    mode="USER_BINARY" allows the user to enter a rule in binary
@@ -166,31 +222,15 @@ void setRule() {
 	cout<<"2. Enter a rule in binary."<<endl;
 	cout<<"3. Enter a rule in decimal."<<endl;
 	cin>>userInput;
-
-	switch(userInput){
+	switch(userInput)
+	{
 		case 1: binRule = getRandomRule();
 			break;
-		case 2: 		//make 2 methods one for user entering a rule in binary
-					//and the other for user entering a rule in decimal then
-					//calling convertbinaryto decimal method.
+		case 2: binRule = getUserRule();		
+			break;					
+		case 3:	binRule = getUserDecRule();
 			break;
-		case 3: binRule = 
 	}
-
-	if (mode=="RANDOM") {
-		binRule = getRandomRule();
-	}
-	else if (mode=="USER_BINARY") {
-		// Call function to get user to enter rule in binary
-	}
-	else if (mode=="USER_DECIMAL") {
-		/* Call function to get user to enter rule in decimal
-		   and convert to binary */
-	}
-	else {
-		cerr << "Invalid input to setRule(string mode)" << endl;
-	}
-	
 	// Reset rule
 	rule.clear();
 
@@ -199,9 +239,9 @@ void setRule() {
 }
 
 /* Calculates the contents of child row based on parent row
-   mode=0 sets out of bounds neightbour cells to 0
-   mode=1 wraps cells around when calculating neighbours */
-void calculateChild(bool mode) {
+   mode="NO_WRAP" sets out of bounds neightbour cells to 0
+   mode="WRAP" wraps cells around when calculating neighbours */
+void calculateChild(string mode) {
 	bool currentVal;
 	bool prevVal;
 	bool nextVal;
@@ -215,7 +255,7 @@ void calculateChild(bool mode) {
 		
 		// There is no previous cell for the first cell in the row.
 		if (i <= 0) {
-			if (mode==1) {
+			if (mode=="WRAP") {
 				prevVal = parent.at(parent.size()-1);
 			}
 			else {
@@ -228,7 +268,7 @@ void calculateChild(bool mode) {
 
 		// The last cell in the array has no next cell.
 		if (i >= parent.size()-1) {
-			if (mode==1) {
+			if (mode=="WRAP") {
 				nextVal = parent.at(0);
 			}
 			else {
@@ -269,7 +309,7 @@ void calculateChild(bool mode) {
 
 // Displays current value of parent row
 void outputParent() {
-	const char* outChar;
+	char outChar;
 	for (int i = 0; i < parent.size(); i++) {
 		if (parent.at(i)) {
 			outChar = char1;
@@ -284,7 +324,7 @@ void outputParent() {
 
 // Displays current value of child row
 void outputChild() {
-	const char* outChar;
+	char outChar;
 	for (int i = 0; i < child.size(); i++) {
 		if (child.at(i)) {
 			outChar = char1;
@@ -297,40 +337,22 @@ void outputChild() {
 	cout << endl;
 }
 
-// Asks user whether they want edges to wrap around and returns true or false
-bool getWrap() {
-	char answer;
-	cout << "Would you like to wrap the edges of the picture around? [y/n] " << endl;
-	cin >> answer;
-	
-	// Input validation
-	while (!(answer == 'y' || answer == 'n')) {
-		cout << "Invalid input. Please try again." << endl;
-		cout << "Would you like to wrap the edges of the picture around? [y/n]" << endl;
-		cin >> answer;
-	}
-	
-	if (answer='y') {
-		return 1;
-	}
-	else {
-		return 0;
+void copyChildToParent() {
+	for (int i = 0; i < 10; i++) {
+		parent[i] = child[i];
 	}
 }
 
 // Output text based picture by repeatedly calling calculateChild()
 void outputPicture() {
 	
-	// Get options from user
 	int height = getHeight();
-	bool wrap = getWrap();
-	
 	// Print first row
 	outputParent();
 	
 	// Generate and print out child rows
 	for (int i = 0; i < height; i++){
-		calculateChild(wrap);
+		calculateChild("WRAP");
 		outputChild();
 		// This child becomes the parent of the next row.
 		parent = child;
@@ -340,9 +362,9 @@ void outputPicture() {
 void runProgram() {
 	/* Code to get mode inputs from user needed here*/
 	// Set rule from 0 to 255
-	setRule("RANDOM");
+	setRule();
 	// Set first row of picture
-	initParent("RANDOM");
+	initParent();
 	/* Draw picture
 	   calculateChild("WRAP") is called within this function
 	   need a way for user to set "WRAP" / "NO_WRAP" */
