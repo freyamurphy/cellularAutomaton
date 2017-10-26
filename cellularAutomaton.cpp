@@ -11,7 +11,7 @@
 using namespace std;
 
 // Global variables
-int height = 35; // Number of rows in picture
+//int height = 35; // Number of rows in picture
 
 /* Use vectors to store parent and child generations
    This allows the width to be changed.*/
@@ -46,6 +46,27 @@ int getWidth() {
 	return width;
 }
 
+/* Get an integer from the user and return it */
+int getHeight()
+{
+	int height;
+	
+	cout << "How many rows would you like in the picture?" << endl;
+	cin >> height;
+	
+	// Input validation
+	while (!cin || height <= 0) {
+		cerr << "Invalid input." << endl;
+		cout << "How many rows would you like in the picture?" << endl;
+		
+		// Clear the stream and try again.
+		cin.clear();
+		cin.ignore(1);
+		cin >> height;
+	}
+	return height;
+}
+
 /* Set values of first row in picture
    mode="RANDOM" gives a randomly generated row
    mode="USER_INPUT" allows the user to enter the row
@@ -61,7 +82,7 @@ void initParent(string mode) {
 		srand(time(NULL));
 		
 		int width = getWidth();
-		
+	
 		for (int i = 0; i < width; i++) {
 			// randomly choose 1 or 0
 			bit = rand() % 2;
@@ -135,10 +156,27 @@ vector<bool> getRandomRule() {
    mode="RANDOM" chooses a random rule
    mode="USER_BINARY" allows the user to enter a rule in binary
    mode="USER_DECIMAL" allows the user to enter a rule in decimal */
-void setRule(string mode) {
+void setRule() {
 	// Vector to store rule as binary number
 	vector<bool> binRule(8);
-	
+	//use case statement for menu 
+	int userInput;
+	cout<<"Please choose from the following: "<<endl;
+	cout<<"1. Use a random rule."<<endl;
+	cout<<"2. Enter a rule in binary."<<endl;
+	cout<<"3. Enter a rule in decimal."<<endl;
+	cin>>userInput;
+
+	switch(userInput){
+		case 1: binRule = getRandomRule();
+			break;
+		case 2: 		//make 2 methods one for user entering a rule in binary
+					//and the other for user entering a rule in decimal then
+					//calling convertbinaryto decimal method.
+			break;
+		case 3: binRule = 
+	}
+
 	if (mode=="RANDOM") {
 		binRule = getRandomRule();
 	}
@@ -267,11 +305,13 @@ void copyChildToParent() {
 
 // Output text based picture by repeatedly calling calculateChild()
 void outputPicture() {
+	
+	int height = getHeight();
 	// Print first row
 	outputParent();
-
+	
 	// Generate and print out child rows
-	for (int i = 0; i < height; i++) {
+	for (int i = 0; i < height; i++){
 		calculateChild("WRAP");
 		outputChild();
 		// This child becomes the parent of the next row.
@@ -281,11 +321,10 @@ void outputPicture() {
 
 void runProgram() {
 	/* Code to get mode inputs from user needed here*/
-
-	// Set first row of picture
-	initParent("RANDOM");
 	// Set rule from 0 to 255
 	setRule("RANDOM");
+	// Set first row of picture
+	initParent("RANDOM");
 	/* Draw picture
 	   calculateChild("WRAP") is called within this function
 	   need a way for user to set "WRAP" / "NO_WRAP" */
