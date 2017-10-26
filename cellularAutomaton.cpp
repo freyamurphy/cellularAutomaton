@@ -22,8 +22,8 @@ vector<bool> child;
 vector<bool> rule(8);
 
 // Characters to output in picture
-char char1 = '1';
-char char2 = ' ';
+const char* char1 = "\u25A0";
+const char* char2 = " ";
 
 // Get an integer from the user and return it
 int getWidth() {
@@ -269,7 +269,7 @@ void calculateChild(bool mode) {
 
 // Displays current value of parent row
 void outputParent() {
-	char outChar;
+	const char* outChar;
 	for (int i = 0; i < parent.size(); i++) {
 		if (parent.at(i)) {
 			outChar = char1;
@@ -284,7 +284,7 @@ void outputParent() {
 
 // Displays current value of child row
 void outputChild() {
-	char outChar;
+	const char* outChar;
 	for (int i = 0; i < child.size(); i++) {
 		if (child.at(i)) {
 			outChar = char1;
