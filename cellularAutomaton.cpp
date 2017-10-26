@@ -199,9 +199,9 @@ void setRule() {
 }
 
 /* Calculates the contents of child row based on parent row
-   mode="NO_WRAP" sets out of bounds neightbour cells to 0
-   mode="WRAP" wraps cells around when calculating neighbours */
-void calculateChild(string mode) {
+   mode=0 sets out of bounds neightbour cells to 0
+   mode=1 wraps cells around when calculating neighbours */
+void calculateChild(bool mode) {
 	bool currentVal;
 	bool prevVal;
 	bool nextVal;
@@ -215,7 +215,7 @@ void calculateChild(string mode) {
 		
 		// There is no previous cell for the first cell in the row.
 		if (i <= 0) {
-			if (mode=="WRAP") {
+			if (mode==1) {
 				prevVal = parent.at(parent.size()-1);
 			}
 			else {
@@ -228,7 +228,7 @@ void calculateChild(string mode) {
 
 		// The last cell in the array has no next cell.
 		if (i >= parent.size()-1) {
-			if (mode=="WRAP") {
+			if (mode==1) {
 				nextVal = parent.at(0);
 			}
 			else {
@@ -297,22 +297,40 @@ void outputChild() {
 	cout << endl;
 }
 
-void copyChildToParent() {
-	for (int i = 0; i < 10; i++) {
-		parent[i] = child[i];
+// Asks user whether they want edges to wrap around and returns true or false
+bool getWrap() {
+	char answer;
+	cout << "Would you like to wrap the edges of the picture around? [y/n] " << endl;
+	cin >> answer;
+	
+	// Input validation
+	while (!(answer == 'y' || answer == 'n')) {
+		cout << "Invalid input. Please try again." << endl;
+		cout << "Would you like to wrap the edges of the picture around? [y/n]" << endl;
+		cin >> answer;
+	}
+	
+	if (answer='y') {
+		return 1;
+	}
+	else {
+		return 0;
 	}
 }
 
 // Output text based picture by repeatedly calling calculateChild()
 void outputPicture() {
 	
+	// Get options from user
 	int height = getHeight();
+	bool wrap = getWrap();
+	
 	// Print first row
 	outputParent();
 	
 	// Generate and print out child rows
 	for (int i = 0; i < height; i++){
-		calculateChild("WRAP");
+		calculateChild(wrap);
 		outputChild();
 		// This child becomes the parent of the next row.
 		parent = child;
