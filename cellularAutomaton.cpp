@@ -1,12 +1,14 @@
-/* Based on final working version
-   Try converting to vectors to work with dynamic width.
- */
+/* Authors: Freya Murphy 170004881
+			Cerys Kelly
+*/
+   
 
 #include <iostream>
 #include <string>
 #include <cstdlib>
 #include <cmath>
 #include <vector>
+#include <fstream>
 
 using namespace std;
 
@@ -18,12 +20,15 @@ using namespace std;
 vector<bool> parent;
 vector<bool> child;
 
+// A 2D vector is needed to store the whole picture
+vector< vector<bool> > picture;
+
 /* rule should always have size 8 since 2^3=8 (3 bits with 2 options each)*/
 vector<bool> rule(8);
 
 // Characters to output in picture
-char char1 = '1';
-char char2 = ' ';
+const char* char1 = "\u25A0";
+const char* char2 = "  ";
 
 // Get an integer from the user and return it
 int getWidth() {
@@ -39,7 +44,7 @@ int getWidth() {
 		
 		// Clear the stream and try again.
 		cin.clear();
-		cin.ignore(1);
+		cin.ignore(256, '\n');
 		cin >> width;
 	}
 	
@@ -61,7 +66,7 @@ int getHeight()
 		
 		// Clear the stream and try again.
 		cin.clear();
-		cin.ignore(1);
+		cin.ignore(256, '\n');
 		cin >> height;
 	}
 	return height;
@@ -73,10 +78,30 @@ vector<bool> userGeneratedRow()
 	int userInput;
 	vector<bool> userGeneratedRow;
 	int width = getWidth();
+	
+	cout << "Inputting first row:" << endl;
+	
 	for(int i =0;i<width;i++)
 	{
 		cout<<"Please enter a 1 or a 0 and press 'Enter'"<<endl;
 		cin>>userInput;
+		
+		// Input validation
+		while (!(userInput == 1 || userInput == 0) || !cin) {
+		
+			// Failed to read input, probably because user entered a string
+			if (!cin) {
+				// Clear error flags
+				cin.clear();
+				// Ignore characters that caused error
+				cin.ignore(256, '\n');
+			}
+		
+			cout << "Invalid input." << endl;
+			cout << "Please enter a 1 or a 0 and press 'Enter'" << endl;
+			cin >> userInput;
+		}
+		
 		userGeneratedRow.push_back(userInput);
 	}
 	return userGeneratedRow;
@@ -111,6 +136,7 @@ void initParent()
 	
 	// Reset the row
 	parent.clear();
+	
 
 	//Small menu for choosing how the parent is generated.
 	int userInput;
@@ -118,6 +144,25 @@ void initParent()
 	cout<<"1. Use a randomly generated first row."<<endl;
 	cout<<"2. Enter a first row."<<endl;
 	cin>>userInput;
+	
+	// Input validation
+	while (userInput < 1 || userInput > 2 || !cin) {
+	
+		// Failed to read input, probably because user entered a string
+		if (!cin) {
+			// Clear error flags
+			cin.clear();
+			// Ignore characters that caused error
+			cin.ignore(256, '\n');
+		}
+	
+		cout << "Invalid input. Please try again." << endl;
+		cout<<"Please choose from the following: "<<endl;
+		cout<<"1. Use a randomly generated first row."<<endl;
+		cout<<"2. Enter a first row."<<endl;
+		cin>>userInput;
+	}
+	
 	switch(userInput)
 	{
 		case 1:	parent = randomParentGeneration();
@@ -189,10 +234,27 @@ vector<bool> getUserRule()
 	{
 		cout<<"Please enter a 1 or a 0 and press 'Enter'"<<endl;
 		cin>>usrInput;
+		
+		// Input validation
+		while (!(usrInput == 1 || usrInput == 0) || !cin) {
+		
+			// Failed to read input, probably because user entered a string
+			if (!cin) {
+				// Clear error flags
+				cin.clear();
+				// Ignore characters that caused error
+				cin.ignore(256, '\n');
+			}
+		
+			cout << "Invalid input." << endl;
+			cout << "Please enter a 1 or a 0 and press 'Enter'" << endl;
+			cin >> usrInput;
+		}
+		
 		binRule.push_back(usrInput);
 	}
 	int decNum = convertBinaryToDecimal(binRule);
-	cout<<"Rule" << decNum<<endl;
+	cout<<"Rule " << decNum<<endl;
 	return binRule;
 }
 
@@ -201,8 +263,24 @@ vector<bool> getUserDecRule()
 {
 	int userInput;
 	vector<bool> decRule;
-	cout<<"Please enter a decimal: "<<endl;
+	cout<<"Please enter a value from 0 to 255: "<<endl;
 	cin>>userInput;
+	
+	while (userInput < 0 || userInput > 255 || !cin) {
+	
+		// Failed to read input, probably because user entered a string
+		if (!cin) {
+			// Clear error flags
+			cin.clear();
+			// Ignore characters that caused error
+			cin.ignore(256, '\n');
+		}
+	
+		cout << "Invalid input." << endl;
+		cout << "Please enter a value from 0 to 255." << endl;
+		cin >> userInput;
+	}
+		
 	cout<< "You have entered Rule "<< userInput<<endl;
 	decRule = convertDecimalToBinary(userInput);
 	return decRule;
@@ -222,6 +300,26 @@ void setRule() {
 	cout<<"2. Enter a rule in binary."<<endl;
 	cout<<"3. Enter a rule in decimal."<<endl;
 	cin>>userInput;
+	
+	// Input validation
+	while (userInput < 1 || userInput > 3 || !cin) {
+	
+		// Failed to read input, probably because user entered a string
+		if (!cin) {
+			// Clear error flags
+			cin.clear();
+			// Ignore characters that caused error
+			cin.ignore(256, '\n');
+		}
+	
+		cout << "Invalid input. Please try again." << endl;
+		cout<<"Please choose from the following: "<<endl;
+		cout<<"1. Use a random rule."<<endl;
+		cout<<"2. Enter a rule in binary."<<endl;
+		cout<<"3. Enter a rule in decimal."<<endl;
+		cin >> userInput;
+	}
+	
 	switch(userInput)
 	{
 		case 1: binRule = getRandomRule();
@@ -239,9 +337,9 @@ void setRule() {
 }
 
 /* Calculates the contents of child row based on parent row
-   mode="NO_WRAP" sets out of bounds neightbour cells to 0
-   mode="WRAP" wraps cells around when calculating neighbours */
-void calculateChild(string mode) {
+   mode=0 sets out of bounds neightbour cells to 0
+   mode=1 wraps cells around when calculating neighbours */
+void calculateChild(bool mode) {
 	bool currentVal;
 	bool prevVal;
 	bool nextVal;
@@ -255,7 +353,7 @@ void calculateChild(string mode) {
 		
 		// There is no previous cell for the first cell in the row.
 		if (i <= 0) {
-			if (mode=="WRAP") {
+			if (mode==1) {
 				prevVal = parent.at(parent.size()-1);
 			}
 			else {
@@ -268,7 +366,7 @@ void calculateChild(string mode) {
 
 		// The last cell in the array has no next cell.
 		if (i >= parent.size()-1) {
-			if (mode=="WRAP") {
+			if (mode==1) {
 				nextVal = parent.at(0);
 			}
 			else {
@@ -309,7 +407,7 @@ void calculateChild(string mode) {
 
 // Displays current value of parent row
 void outputParent() {
-	char outChar;
+	const char* outChar;
 	for (int i = 0; i < parent.size(); i++) {
 		if (parent.at(i)) {
 			outChar = char1;
@@ -324,7 +422,7 @@ void outputParent() {
 
 // Displays current value of child row
 void outputChild() {
-	char outChar;
+	const char* outChar;
 	for (int i = 0; i < child.size(); i++) {
 		if (child.at(i)) {
 			outChar = char1;
@@ -337,38 +435,132 @@ void outputChild() {
 	cout << endl;
 }
 
-void copyChildToParent() {
-	for (int i = 0; i < 10; i++) {
-		parent[i] = child[i];
+// Asks user whether they want edges to wrap around and returns true or false
+bool getWrap() {
+	char answer;
+	cout << "Would you like to wrap the edges of the picture around? [y/n] " << endl;
+	cin >> answer;
+	
+	// Input validation
+	while (!(answer == 'y' || answer == 'n') || !cin) {
+	
+		// Reset error flags
+		if (!cin) {
+			cin.clear();
+		}
+		
+		// Ignore invalid characters
+		cin.ignore(256, '\n');
+	
+		cout << "Invalid input. Please try again." << endl;
+		cout << "Would you like to wrap the edges of the picture around? [y/n]" << endl;
+		cin >> answer;
+	}
+	
+	if (answer='y') {
+		return 1;
+	}
+	else {
+		return 0;
 	}
 }
 
 // Output text based picture by repeatedly calling calculateChild()
 void outputPicture() {
 	
+	// Get options from user
 	int height = getHeight();
+	bool wrap = getWrap();
+	
 	// Print first row
 	outputParent();
+	// Add parent row to 2D vector in case the user wants to save to a file
+	picture.push_back(parent);
 	
 	// Generate and print out child rows
-	for (int i = 0; i < height; i++){
-		calculateChild("WRAP");
+	for (int i = 0; i < height; i++) {
+		calculateChild(wrap);
 		outputChild();
+		picture.push_back(child);
 		// This child becomes the parent of the next row.
 		parent = child;
 	}
 }
 
+void saveToFile() {
+	string fileName;
+	cout << "Enter a name for the file:" << endl;
+	cin >> fileName;
+	
+	// Create file
+	ofstream outputFile(fileName);
+	
+	// Write to file
+	if (outputFile.is_open()) {	
+	
+		for (int row = 0; row < picture.size(); row++) {
+		
+			for (int col = 0; col < picture.at(0).size(); col++) {
+			
+				if (picture.at(row).at(col)) {
+					outputFile << char1;
+				}
+				else {
+					outputFile << char2;
+				}
+			}
+			outputFile << "\n";
+		}
+		outputFile.close();
+		cout << "The picture was successfully saved to " << fileName << endl;
+		
+	}
+	else {
+		cerr << "Unable to open file.";
+	}
+}
+
+bool askToSave() {
+	char answer;
+	cout << "Would you like to save the picture to a file? [y/n]" << endl;
+	cin >> answer;
+	
+	// input validation
+	while (!(answer == 'y' || answer == 'n') || !cin) {
+	
+		// Reset error flags
+		if (!cin) {
+			cin.clear();
+		}
+		
+		// Ignore invalid characters
+		cin.ignore(256, '\n');
+	
+		cout << "Invalid input. Please try again." << endl;
+		cout << "Would you like to save the picture to a file? [y/n]" << endl;
+		cin >> answer;
+	}
+	
+	if (answer == 'y') {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
+
 void runProgram() {
-	/* Code to get mode inputs from user needed here*/
 	// Set rule from 0 to 255
 	setRule();
 	// Set first row of picture
 	initParent();
-	/* Draw picture
-	   calculateChild("WRAP") is called within this function
-	   need a way for user to set "WRAP" / "NO_WRAP" */
+	// Output picture to screen
 	outputPicture();
+	
+	// Ask the user if they want to save the picture to a file
+	if ( askToSave() ) {
+		saveToFile();
+	}
 }
 
 int main() {
