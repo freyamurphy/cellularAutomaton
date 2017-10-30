@@ -12,9 +12,6 @@
 
 using namespace std;
 
-// Global variables
-//int height = 35; // Number of rows in picture
-
 /* Use vectors to store parent and child generations
    This allows the width to be changed.*/
 vector<bool> parent;
@@ -23,14 +20,14 @@ vector<bool> child;
 // A 2D vector is needed to store the whole picture
 vector< vector<bool> > picture;
 
-/* rule should always have size 8 since 2^3=8 (3 bits with 2 options each)*/
+// rule should always have size 8 since 2^3=8 (3 bits with 2 options each)
 vector<bool> rule(8);
 
 // Characters to output in picture
 const char* char1 = "\u25A0";
 const char* char2 = "  ";
 
-// Get an integer from the user and return it
+/* Get an integer from the user and return it */
 int getWidth() {
 	int width;
 	
@@ -72,15 +69,18 @@ int getHeight()
 	return height;
 }
 
+/* Get user to enter a series of 1s and 0s to be the first row in the picture. */
 vector<bool> userGeneratedRow()
 {
-	//make width size of string no width variable 
 	int userInput;
 	vector<bool> userGeneratedRow;
+	
+	// Ask user how long they want the row to be
 	int width = getWidth();
 	
 	cout << "Inputting first row:" << endl;
 	
+	// Get input
 	for(int i =0;i<width;i++)
 	{
 		cout<<"Please enter a 1 or a 0 and press 'Enter'"<<endl;
@@ -102,17 +102,22 @@ vector<bool> userGeneratedRow()
 			cin >> userInput;
 		}
 		
+		// Add bit to vector
 		userGeneratedRow.push_back(userInput);
 	}
 	return userGeneratedRow;
 		
 }
 
+/* Randomly select a series of 1s and 0s to be the first row in the picture.*/
 vector<bool> randomParentGeneration()
 {
 	// The next bit to add to the row
 	bool bit;
+	
 	vector<bool> randomGeneration;
+	
+	// Ask user how long they want the row to be.
 	int width = getWidth();
 	// Initialise random seed
 	srand(time(NULL));
@@ -127,17 +132,13 @@ vector<bool> randomParentGeneration()
 	return randomGeneration;
 }
 
-/* Set values of first row in picture
-   mode="RANDOM" gives a randomly generated row
-   mode="USER_INPUT" allows the user to enter the row
-*/
+/* Set values of first row in picture */
 void initParent()
 {
 	
 	// Reset the row
 	parent.clear();
 	
-
 	//Small menu for choosing how the parent is generated.
 	int userInput;
 	cout<<"Please choose from the following: "<<endl;
@@ -145,7 +146,7 @@ void initParent()
 	cout<<"2. Enter a first row."<<endl;
 	cin>>userInput;
 	
-	// Input validation
+	// Input validation for menu
 	while (userInput < 1 || userInput > 2 || !cin) {
 	
 		// Failed to read input, probably because user entered a string
@@ -163,6 +164,7 @@ void initParent()
 		cin>>userInput;
 	}
 	
+	// Call relevant function
 	switch(userInput)
 	{
 		case 1:	parent = randomParentGeneration();
@@ -172,7 +174,7 @@ void initParent()
 	}
 }
 
-// Converts a decimal number to an 8 bit binary number
+/* Converts a decimal number to an 8 bit binary number */
 vector<bool> convertDecimalToBinary(int decNum) {
 	// Vector to store rule in binary
 	vector<bool> binNum(8);
@@ -181,9 +183,12 @@ vector<bool> convertDecimalToBinary(int decNum) {
 	
 	// Repeatedly divide decNum by two and store remainder as binary digit
 	for (int i = 1; i < binNum.size()+1; i++) {
+		// Get remainder after division by 2
 		remainder = decNum % 2;
+		// Divide by 2
 		decNum /= 2;
 		
+		// Store remainder in vector
 		if (binNum.size()-i >= 0) {
 			binNum[binNum.size() - i] = remainder;
 		}
@@ -192,15 +197,17 @@ vector<bool> convertDecimalToBinary(int decNum) {
 	return binNum;
 }
 
-// Convert an 8 bit binary number to a decimal value
+/* Convert an 8 bit binary number to a decimal value */
 int convertBinaryToDecimal(vector<bool> binNum) {
 	int decNum = 0;
 	int binDigit;
 	int powerOfTwo = 1;
 	
 	for (int i = binNum.size()-1; i >= 0; i--) {
+		// Get binary digit
 		binDigit = binNum.at(i);
 		
+		// Multiply digit by appropriate power of 2 and add this to the total
 		decNum += binDigit*powerOfTwo;
 		
 		// The power of 2 increases with each column
@@ -210,7 +217,7 @@ int convertBinaryToDecimal(vector<bool> binNum) {
 	return decNum;
 }
 
-// Chooses a random rule from 0 to 256 and convert it to binary.
+/* Chooses a random rule from 0 to 255 and converts it to binary.*/
 vector<bool> getRandomRule() {
 	// This line is needed to make the numbers appear more random
 	srand(time(NULL));
@@ -230,6 +237,8 @@ vector<bool> getUserRule()
 {
 	vector<bool> binRule;
 	int usrInput;
+	
+	// User enters rule bit by bit
 	for(int i =0;i<8;i++)
 	{
 		cout<<"Please enter a 1 or a 0 and press 'Enter'"<<endl;
@@ -251,6 +260,7 @@ vector<bool> getUserRule()
 			cin >> usrInput;
 		}
 		
+		// Add bit to rule vector
 		binRule.push_back(usrInput);
 	}
 	int decNum = convertBinaryToDecimal(binRule);
@@ -258,7 +268,7 @@ vector<bool> getUserRule()
 	return binRule;
 }
 
-/* Gets the user to input their own rule in decimals */
+/* Gets the user to input their own rule in decimal */
 vector<bool> getUserDecRule()
 {
 	int userInput;
@@ -266,6 +276,7 @@ vector<bool> getUserDecRule()
 	cout<<"Please enter a value from 0 to 255: "<<endl;
 	cin>>userInput;
 	
+	// Input validation
 	while (userInput < 0 || userInput > 255 || !cin) {
 	
 		// Failed to read input, probably because user entered a string
@@ -282,14 +293,13 @@ vector<bool> getUserDecRule()
 	}
 		
 	cout<< "You have entered Rule "<< userInput<<endl;
+	
+	// Convert the rule to binary
 	decRule = convertDecimalToBinary(userInput);
 	return decRule;
 }
 
-/* Set value of rule vector
-   mode="RANDOM" chooses a random rule
-   mode="USER_BINARY" allows the user to enter a rule in binary
-   mode="USER_DECIMAL" allows the user to enter a rule in decimal */
+/* Set value of rule vector */
 void setRule() {
 	// Vector to store rule as binary number
 	vector<bool> binRule(8);
